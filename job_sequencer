@@ -1,0 +1,18 @@
+#!/usr/bin/env ruby
+
+require './lib/job_sequencer'
+
+print "Enter job string (Press enter twice to finish entering): "
+
+$/ = "\n\n" 
+job_string = gets.chomp.to_s
+
+puts "Sequencer Output: "
+
+sequencer = JobSequencer.new
+
+begin
+	puts sequencer.process(job_string).inspect
+rescue SequencerException => e
+	abort "Error: #{e.message}"
+end
