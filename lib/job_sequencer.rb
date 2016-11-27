@@ -18,9 +18,13 @@ class JobSequencer
 
 		out_arr = jobs_arr.map { |j| j[0] }
 		# shift dependencies to the front of the queue
-		jobs_with_dep_arr.each do |j|
-			out_arr.delete(j[-1])
-			out_arr.unshift(j[-1])
+		jobs_arr.each do |j|
+			if j.length == 2
+				out_arr.delete(j[0])
+				out_arr.delete(j[-1])
+				out_arr << j[-1]
+				out_arr << j[0]
+			end
 		end
 		out_arr
 	end
@@ -54,7 +58,7 @@ class JobSequencer
 
 		def have_circular_dependencies?
 			# sort jobs so we can check for cycles
-			circ_jobs = jobs_with_dep_arr.sort { |a,b| b <=> a }
+			circ_jobs = jobs_with_dep_arr.sort { |a,b| b[0] <=> a[0] }
 			# puts circ_jobs.inspect
 			jobs_seen = []
 			while circ_jobs.length > 0

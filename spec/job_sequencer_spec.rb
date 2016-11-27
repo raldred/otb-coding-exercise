@@ -44,19 +44,6 @@ describe JobSequencer do
 			end
 		end
 
-		context 'given three jobs, one with a dependency' do
-			let(:joblist) do
-					%Q{
-						a =>
-						b => c
-						c =>
-					}
-				end
-			it 'should return all three jobs with c before b' do
-				expect(subject.process(joblist)).to eq(['c', 'a', 'b'])
-			end
-		end
-
 		context 'given multiple jobs with a dependenies' do
 			let(:joblist) do
 					%Q{
@@ -69,7 +56,7 @@ describe JobSequencer do
 					}
 				end
 			it 'should return all jobs with f before c, c before b, b before e and a before d' do
-				expect(subject.process(joblist)).to eq(['b', 'a', 'f', 'c', 'd', 'e'])
+				expect(subject.process(joblist)).to eq(['f', 'c', 'a', 'd', 'b', 'e'])
 			end
 		end
 
@@ -99,6 +86,39 @@ describe JobSequencer do
 				end
 			it 'should raise an error' do
 				expect { subject.process(joblist) }.to raise_error(SequencerException, "Jobs cannot have circular dependencies")
+			end
+		end
+
+		context 'given multiple jobs where two cycles exist' do
+			let(:joblist) do
+					%Q{
+						a =>
+						b => c
+						c => d
+						d => b
+						e => g
+						f =>
+						g => e
+					}
+				end
+			it 'should raise an error' do
+				expect { subject.process(joblist) }.to raise_error(SequencerException, "Jobs cannot have circular dependencies")
+			end
+		end
+
+		context 'given multiple jobs with dependencies in a different order' do
+			let(:joblist) do
+					%Q{
+						b => c
+						f =>
+						c => f
+						a =>
+						e => b
+						d => a
+					}
+				end
+			it 'should return all jobs with f before c, c before b, b before e and a before d' do
+				expect(subject.process(joblist)).to eq(['f', 'c', 'b', 'e', 'a', 'd'])
 			end
 		end
 
