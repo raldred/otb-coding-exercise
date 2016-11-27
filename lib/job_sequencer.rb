@@ -15,6 +15,14 @@ class JobSequencer
 		@jobs_arr = parse_job_string(job_list_string)
 		raise SequencerException, "Jobs cannot depend on themselves" if have_self_dependency?
 		raise SequencerException, "Jobs cannot have circular dependencies" if have_circular_dependencies?
+
+		out_arr = jobs_arr.map { |j| j[0] }
+		# shift dependencies to the front of the queue
+		jobs_with_dep_arr.each do |j|
+			out_arr.delete(j[-1])
+			out_arr.unshift(j[-1])
+		end
+		out_arr
 	end
 
 
@@ -45,6 +53,21 @@ class JobSequencer
 		end
 
 		def have_circular_dependencies?
+			# sort jobs so we can check for cycles
+			circ_jobs = jobs_with_dep_arr.sort { |a,b| b <=> a }
+			# puts circ_jobs.inspect
+			jobs_seen = []
+			while circ_jobs.length > 0
+				job = circ_jobs[0]
+				# get dependent job
+				dep_jobs = jobs_with_dep_arr.select { |j| job[0] != j[0] && j[0] == job[-1] }
+				unless dep_jobs.empty?
+					# we have a cycle if the dep job has already been walked
+					return true if dep_jobs.any? { |d| jobs_seen.include? d }
+					jobs_seen << job
+				end
+				circ_jobs.delete(job)
+			end
 			false
 		end
 	
