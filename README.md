@@ -1,8 +1,21 @@
 ### README
 
-* Run './job_sequencer'
+* Run test with `rspec`
+
+### USAGE
+
+* Run `./job_sequencer`
+
 * Enter jobs with or without dependencies, one job per line
-* Press enter twice to process
+
+	**eg.**
+	```
+	a =>
+	b => c
+	c =>
+	```
+
+* Press enter twice to run sequencer process
 
 ### NOTES
 
@@ -12,7 +25,7 @@ The validation of input was my initial focus as I knew this would drive my appro
 I had a few difference solutions to the cyclic dependency check for example a recursive function, I found those to be unreliable and only worked if jobs were entered in a fixed order due to lack of unique job idendifers.
 I settled on a reducing array of jobs to check with a second array to track the jobs already seen in the cycle.
 
-It also became apparent that the solution to sorting the sequence was not robust when jobs were passed in a different order, the returned sequence did not correctly order the dependency chain.
+It also became apparent that the solution to sorting the sequence was not robust when jobs were passed in a different order, the returned sequence did not correctly order the dependency chain. I tweaked to reposition both the job and it's dependency. 
 
 -- 
 
